@@ -95,7 +95,6 @@ double max_y = 0.0;
 double tooltbl_diameters[100];
 FILE *fd_out = NULL;
 int object_last = 0;
-int batchmode = 0;
 int save_gcode = 0;
 char tool_descr[100][1024];
 int tools_max = 0;
@@ -537,7 +536,7 @@ void mainloop (void) {
 		save_gcode = 0;
 	}
 
-	if (batchmode == 1) {
+	if (PARAMETER[P_O_BATCHMODE].vint == 1) {
 		onExit();
 		exit(0);
 	} else {
@@ -1889,6 +1888,10 @@ int main (int argc, char *argv[]) {
 	SetupLoad();
 	ArgsRead(argc, argv);
 //	SetupShow();
+
+	if (PARAMETER[P_O_BATCHMODE].vint == 1 && PARAMETER[P_MFILE].vstr[0] != 0) {
+		save_gcode = 1;
+	}
 
 	gtk_init(&argc, &argv);
 	gtk_gl_init(&argc, &argv);

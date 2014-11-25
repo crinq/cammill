@@ -101,6 +101,7 @@ PARA PARAMETER[] = {
 	{"Tolerance",	"Misc",		"-mt",	T_DOUBLE,	0,	0.01,	0.001,	"",	0.0001,	0.01,	10.0,		"mm", 1, 1, "Tollerance between points to close objects", 0, 0, 0},
 	{"Parameter",	"Misc",		"-st",	T_SELECT,	0,	0.0,	0.0,	"",	0,	1.0,	1.0,		"", 1, 1, "Tabs or Expander for Parameter", 0, 0, 0},
 	{"Setup-Autosave","Misc",	"-as",	T_BOOL,		1,	0.0,	0.0,	"",	0,	1.0,	1.0,		"", 1, 1, "Save setup at exit", 0, 0, 0},
+	{"Batchmode",	"Misc",		"-bm",	T_BOOL,		0,	0.0,	0.0,	"",	0,	1.0,	1.0,		"", 0, 1, "Batchmode", 1, 0, 0},
 #ifdef USE_VNC
 	{"VNC-Server",	"Misc",		"-vs",	T_STRING,	0,	0.0,	0.0,	"",	0.0,	0.0,	0.0,		"", 0, 0, "VNC-Server address", 0, 0, 0},
 	{"VNC-Port",	"Misc",		"-vp",	T_INT,		5900,	0.0,	0.0,	"",	0.0,	1.0,	35000.0,	"", 0, 0, "VNC-Server port", 0, 0, 0},
