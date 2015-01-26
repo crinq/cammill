@@ -1,0 +1,509 @@
+# German-Translation
+# Copyright (C) 2014
+# This file is distributed under the same license as the PACKAGE package.
+# Oliver Dippel <oliver@multixmedia.org>, 2014.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: cammill\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2014-06-15 08:19+0200\n"
+"PO-Revision-Date: 2014-09-16 12:38+0100\n"
+"Last-Translator: Oliver Dippel <o.dippel@gmx.de>\n"
+"Language-Team: Italian <carlo.dormeletti@alice.it>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "View"
+msgstr "Vista"
+
+msgid "Tool"
+msgstr "Utensile"
+
+msgid "Milling"
+msgstr "Fresatura"
+
+msgid "Tabs"
+msgstr "Fissaggi"
+
+msgid "Rotary"
+msgstr "Rotazione"
+
+msgid "Tangencial"
+msgstr "Tangenziale"
+
+msgid "Machine"
+msgstr "Mcchina"
+
+msgid "Material"
+msgstr "Materiale"
+
+msgid "Objects"
+msgstr "Oggetto"
+
+msgid "Misc"
+msgstr "Varie"
+
+msgid "Zoom"
+msgstr "Zoom"
+
+msgid "view-zoom"
+msgstr "Vista zoom"
+
+msgid "Helplines"
+msgstr "Linee Guida"
+
+msgid "show helplines"
+msgstr "Mostra linee guida"
+
+msgid "ShowGrid"
+msgstr "Mostra Reticolo"
+
+msgid "show grid"
+msgstr "Mostra Reticolo"
+
+msgid "ShowTool"
+msgstr "Mostra Utensile"
+
+msgid "show tool-diameter"
+msgstr "Mostra diametro utensile"
+
+msgid "Textures"
+msgstr "Motivo"
+
+msgid "show textures"
+msgstr "Mostra Motivo"
+
+msgid "Rotate-X"
+msgstr "Ruota Asse X"
+
+msgid "View-Rotate X"
+msgstr "Mostra Asse X"
+
+msgid "Rotate-Y"
+msgstr "Ruota Asse Y"
+
+msgid "View-Rotate Y"
+msgstr "Mostra Asse Y"
+
+msgid "Rotate-Z"
+msgstr "Ruota Asse Z"
+
+msgid "View-Rotate Z"
+msgstr "Mostra Asse Z"
+
+msgid "Translate-X"
+msgstr "Trasla Asse X"
+
+msgid "View-Translate X"
+msgstr "Mostra Traslazione Asse X"
+
+msgid "Translate-Y"
+msgstr "Trasla Asse Y"
+
+msgid "View-Translate Y"
+msgstr "Mostra Traslazione Asse Y"
+
+msgid "Grid-Size"
+msgstr "Dimensione Reticolo"
+
+msgid "size of the grid"
+msgstr "dimensione reticolo"
+
+msgid "Arrow-Scale"
+msgstr "Dimensione Frecce"
+
+msgid "size of arrows"
+msgstr "dimensione delle frecce"
+
+msgid "DXF-File"
+msgstr "File DXF"
+
+msgid "dxf-filename"
+msgstr "nome del file DXF"
+
+msgid "Select"
+msgstr "Seleziona"
+
+msgid "selected tool from tooltable"
+msgstr "seleziona un utensile dalla tabella"
+
+msgid "Number"
+msgstr "Numero"
+
+msgid "tool-number"
+msgstr "Utensile numero"
+
+msgid "Diameter"
+msgstr "Diametro"
+
+msgid "tool-diameter"
+msgstr "Diametro Utensile"
+
+msgid "CalcSpeed"
+msgstr "Calcola Velocità"
+
+msgid "calculated spindle-speed"
+msgstr "velocità del mandrino calcolata"
+
+msgid "Speed"
+msgstr "Velocità"
+
+msgid "real spindle-speed"
+msgstr "velocità del mandrino reale"
+
+msgid "Flutes"
+msgstr "Taglienti"
+
+msgid "flutes of the tool, to calculate max toolspeed and feedrate"
+msgstr "taglienti dell'utensile per calcol. la max velocità e avanzamento"
+
+msgid "Table"
+msgstr "Tabella"
+
+msgid "the tooltable filename"
+msgstr "nome della tabella utensili"
+
+msgid "MaxFeedRate"
+msgstr "Avanz. Max"
+
+msgid "calculated maximum feedrate"
+msgstr "avanzamento massimo calcolato"
+
+msgid "FeedRate"
+msgstr "Avanzamento"
+
+msgid "real feedrate"
+msgstr "avanzamento reale"
+
+msgid "PlungeRate"
+msgstr "Avanz. Vert."
+
+msgid "plunge feedrate"
+msgstr "avanzamento varticale"
+
+msgid "Depth"
+msgstr "Profondità"
+
+msgid "end depth"
+msgstr "profondità finale"
+
+msgid "Z-Step"
+msgstr "Z-Step"
+
+msgid "depth per step"
+msgstr "avanz. per Z-Step"
+
+msgid "Save-Move"
+msgstr "Salva/muovi Pos-Z"
+
+msgid "save move z-position"
+msgstr "salva/muovi posizione Z"
+
+msgid "Overcut"
+msgstr "Sovrapposizione"
+
+msgid "overcutting endges"
+msgstr "Ecken Ausfräsen"
+
+msgid "Lasermode"
+msgstr "Modalità Laser"
+
+msgid "lasermode, depth=0.0, turn on/off per object"
+msgstr "Modalità Laser, prof.=0.0, acceso/spento per oggetto"
+
+msgid "Climb"
+msgstr "Salita"
+
+msgid "reverse milling direction / climb milling"
+msgstr "inverti direzione fresatura / fresatura a salire"
+
+msgid "NoOffsets"
+msgstr "NoOffsets"
+
+msgid "without tool-offsets"
+msgstr "senza compensazione utensile"
+
+msgid "Mill Text"
+msgstr "Fresa Testo"
+
+msgid "mill mtext from dxf-files"
+msgstr "Fresa MTEXT da file DXF"
+
+msgid "NC-Debug"
+msgstr "NC-Debug"
+
+msgid "output objects whithout offsets / for debuging"
+msgstr "plotta oggetto senza offset per debug"
+
+msgid "Use Taps"
+msgstr "Usa Fissaggi"
+
+msgid "using holding-tabs"
+msgstr "usa punti di fissaggio"
+
+msgid "Show Grid"
+msgstr "Mostra Reticolo"
+
+msgid "show tab-grid"
+msgstr "mostra reticolo fissaggi"
+
+msgid "depth of the holding-tabs"
+msgstr "profondita dei punti di fissaggio"
+
+msgid "Lenght"
+msgstr "Lung. Fissaggi"
+
+msgid "lenght of the holding-tabs"
+msgstr "lunghezza dei punti di fissaggio"
+
+msgid "Triangle-Type"
+msgstr "Triangolari"
+
+msgid "type of the holding-tabs"
+msgstr "Tipo di punti di fissaggio"
+
+msgid "X-Grid"
+msgstr "Reticolo-X"
+
+msgid "X-grid of the holding-tabs"
+msgstr "punti di fissaggio su reticolo-X"
+
+msgid "Y-Grid"
+msgstr "Reticolo-Y"
+
+msgid "Y-grid of the holding-tabs"
+msgstr "punti di fissaggio su reticolo-Y"
+
+msgid "Fastmove-Speed"
+msgstr "Velocità Rapidi"
+
+msgid "fast-move speed of the maschine, to calculate the milling-time"
+msgstr "Velocità dei rapidi per calcolate il tempo di fresatura"
+
+msgid "Post"
+msgstr "Post"
+
+msgid "post-processor selection"
+msgstr "Seleziona Postprocessore"
+
+msgid "Output-File"
+msgstr "File di Output"
+
+msgid "gcode-output filename"
+msgstr "nome del file di output (gcode)"
+
+msgid "material selection to calculate feedrate and spindlespeed"
+msgstr "tipo di materiale per calcolare velocità mandrino e avanzamento"
+
+msgid "Cutting Speed"
+msgstr "Velocità di Taglio"
+
+msgid "Feedrate/Flute/<4mm"
+msgstr "Avanzamento/Taglienti (<4mm)"
+
+msgid "Feedrate/Flute/<8mm"
+msgstr "Avanzamento/Taglienti (<8mm)"
+
+msgid "Feedrate/Flute/<12mm"
+msgstr "Avanzamento/Taglienti (<12mm)"
+
+msgid "Texture"
+msgstr "Motivo"
+
+msgid "Post-Command"
+msgstr "Post-Command"
+
+msgid "postcommand to trigger an script after saving the gcode (you can use this to copy the gcode to your cnc-maschine)"
+msgstr "comando per lanciare uno script dopo aver salvato il gcode (usabile per trasferire il codice alla fresatrice)"
+
+msgid "object selection"
+msgstr "selezione oggetto"
+
+msgid "Use"
+msgstr "Uso"
+
+msgid "Overwrite"
+msgstr "Sovrascrivi"
+
+msgid "Offset"
+msgstr "Offset"
+
+msgid "Pocket"
+msgstr "Tasca"
+
+msgid "Laser"
+msgstr "Laser"
+
+msgid "Holding-Tab's"
+msgstr "Fissaggio Pezzi"
+
+msgid "use holding tabs"
+msgstr "usa fissaggio pezzi"
+
+msgid "Order"
+msgstr "Ordine"
+
+msgid "milling order"
+msgstr "ordine di fresatura"
+
+msgid "Activate"
+msgstr "Attiva"
+
+msgid "rotarymode to project 2D on rotating axis"
+msgstr "Modo rotazione per proiettare 2D su asse rotante"
+
+msgid "Axis"
+msgstr "Asse"
+
+msgid "axis that used as rotating axis"
+msgstr "asse da usare come asse rotante"
+
+msgid "diameter of the material for the rotary-mode"
+msgstr "diametro del materiale per modo rotazione"
+
+msgid "tangencial-knife cutting, depth=0.0"
+msgstr "taglio tangenziale a lama, prof=0.0"
+
+msgid "axis that used as tangencial axis"
+msgstr "asse da usare come asse tangenziale"
+
+msgid "MaxAngle"
+msgstr "AngoloMax"
+
+msgid "maximum angle before push up the knife"
+msgstr "angolo massimo prima di alzare la lama"
+
+msgid "Tolerance"
+msgstr "Tolleranza"
+
+msgid "Tollerance between points to close objects"
+msgstr "Tolleranza tra punti di oggetti vicini"
+
+msgid "Parameter"
+msgstr "Parametri"
+
+msgid "Tabs or Expander for Parameter"
+msgstr "Tab o voci estese per i parametri"
+
+msgid "VNC-Server"
+msgstr "VNC-Server"
+
+msgid "VNC-Server address"
+msgstr "indirizzo VNC-Server"
+
+msgid "VNC-Port"
+msgstr "VNC-Port"
+
+msgid "VNC-Server port"
+msgstr "VNC-Server Port"
+
+msgid "On/Off"
+msgstr "Acc/Spento"
+
+msgid "3D-View"
+msgstr "Vista-3D"
+
+msgid "Output"
+msgstr "Output"
+
+msgid "PostProcessor"
+msgstr "Postprocessore"
+
+msgid "VNC"
+msgstr "VNC"
+
+msgid "Documentation"
+msgstr "Documentazione"
+
+msgid "-5 First"
+msgstr "-5 prima"
+
+msgid "0 Auto"
+msgstr "0 Auto"
+
+msgid "5 Last"
+msgstr "5 dopo"
+
+msgid "None"
+msgstr "Nessuna"
+
+msgid "Inside"
+msgstr "Interno"
+
+msgid "Outside"
+msgstr "Esterno"
+
+msgid "Expander"
+msgstr "Voci estese"
+
+msgid "Notebook-Tabs"
+msgstr "Tabs"
+
+msgid "Help"
+msgstr "Aiuto"
+
+msgid "Apropos"
+msgstr "Über CAMmill"
+
+msgid "File"
+msgstr "File"
+
+msgid "Load DXF"
+msgstr "Carica DXF"
+
+msgid "Load Preset"
+msgstr "Carica Settaggi"
+
+msgid "Save Preset"
+msgstr "Salva Settaggi"
+
+msgid "Save Output"
+msgstr "Salva output"
+
+msgid "Load Tooltable"
+msgstr "Carica Utensili"
+
+msgid "Save Setup"
+msgstr "Slava configurazione"
+
+msgid "Quit"
+msgstr "Esci"
+
+msgid "Preset"
+msgstr "Settaggi"
+
+msgid "Tooltable"
+msgstr "Tabella Utensili"
+
+msgid "Load Drawing"
+msgstr "carica disegni"
+
+msgid "DXF-Drawings"
+msgstr "Disegni DXF"
+
+msgid "DWG-Drawings"
+msgstr "Disegni DWG"
+
+msgid "SVG-Drawings"
+msgstr "Disegni SVG"
+
+msgid "On Open"
+msgstr "Su Aperti"
+
+msgid "holding-tabs on open contours"
+msgstr "fissaggi su contorni aperti"
+
+msgid "On Inside"
+msgstr "All'interno"
+
+msgid "holding-tabs on inside-contours"
+msgstr "fissaggi all'interno del contorno"
+
+msgid "On Outside"
+msgstr "All'esterno"
+
+msgid "holding-tabs on outside-contours"
+msgstr "fissaggi sull'esterno del contorno"
+
