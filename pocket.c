@@ -171,22 +171,32 @@ void mill_pocket (int object_num, double *next_x, double *next_y) {
 		double in_y = 0.0;
 		int in_flag = 0;
 		if (myLINES[myOBJECTS[object_num].line[0]].type == TYPE_CIRCLE) {
-			double rs = 0.0;
-			double cx = myLINES[myOBJECTS[object_num].line[0]].cx;
-			double cy = myLINES[myOBJECTS[object_num].line[0]].cy;
-			double r = myLINES[myOBJECTS[object_num].line[0]].opt;
-			mill_move_in(cx, cy, 0.0, 0, object_num);
-			mill_z(1, myOBJECTS[object_num].depth);
-			for (rs = PARAMETER[P_TOOL_DIAMETER].vdouble * (double)PARAMETER[P_M_POCKETSTEP].vint / 100.0; rs < r - PARAMETER[P_TOOL_DIAMETER].vdouble * (double)PARAMETER[P_M_POCKETSTEP].vint / 100.0; rs += PARAMETER[P_TOOL_DIAMETER].vdouble * (double)PARAMETER[P_M_POCKETSTEP].vint / 100.0) {
-				mill_xy(1, cx - rs, cy, myOBJECTS[object_num].depth, PARAMETER[P_M_FEEDRATE].vint, object_num, "");
-				if (myOBJECTS[object_num].climb == 0) {
-					mill_circle(2, cx, cy, rs, myOBJECTS[object_num].depth, PARAMETER[P_M_FEEDRATE].vint, myOBJECTS[object_num].inside, object_num, "");
+			double mill_depth_real = myOBJECTS[object_num].depth;
+			double depth = 0.0;
+			double new_depth = 0.0;
+			for (depth = PARAMETER[P_M_Z_STEP].vdouble; depth > mill_depth_real + PARAMETER[P_M_Z_STEP].vdouble; depth += PARAMETER[P_M_Z_STEP].vdouble) {
+				if (depth < mill_depth_real) {
+					new_depth = mill_depth_real;
 				} else {
-					mill_circle(3, cx, cy, rs, myOBJECTS[object_num].depth, PARAMETER[P_M_FEEDRATE].vint, myOBJECTS[object_num].inside, object_num, "");
+					new_depth = depth;
 				}
+				double rs = 0.0;
+				double cx = myLINES[myOBJECTS[object_num].line[0]].cx;
+				double cy = myLINES[myOBJECTS[object_num].line[0]].cy;
+				double r = myLINES[myOBJECTS[object_num].line[0]].opt;
+				mill_move_in(cx, cy, 0.0, 0, object_num);
+				mill_z(1, new_depth);
+				for (rs = PARAMETER[P_TOOL_DIAMETER].vdouble * (double)PARAMETER[P_M_POCKETSTEP].vint / 100.0; rs < r - PARAMETER[P_TOOL_DIAMETER].vdouble * (double)PARAMETER[P_M_POCKETSTEP].vint / 100.0; rs += PARAMETER[P_TOOL_DIAMETER].vdouble * (double)PARAMETER[P_M_POCKETSTEP].vint / 100.0) {
+					mill_xy(1, cx - rs, cy, new_depth, PARAMETER[P_M_FEEDRATE].vint, object_num, "");
+					if (myOBJECTS[object_num].climb == 0) {
+						mill_circle(2, cx, cy, rs, new_depth, PARAMETER[P_M_FEEDRATE].vint, myOBJECTS[object_num].inside, object_num, "");
+					} else {
+						mill_circle(3, cx, cy, rs, new_depth, PARAMETER[P_M_FEEDRATE].vint, myOBJECTS[object_num].inside, object_num, "");
+					}
+				}
+				*next_x = cx - rs;
+				*next_y = cy;
 			}
-			*next_x = cx - rs;
-			*next_y = cy;
 		} else {
 #pragma omp parallel
 {
