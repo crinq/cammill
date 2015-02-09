@@ -248,7 +248,7 @@ void dxf_read (char *file) {
 							pl_first_y = p_y1;
 						} else {
 							if (p_r1 != 0.0) {
-								double chord = sqrt(pow(abs(pl_last_x - p_x1), 2.0) + pow(abs(pl_last_y - p_y1), 2.0));
+								double chord = sqrt(pow(fabs(pl_last_x - p_x1), 2.0) + pow(fabs(pl_last_y - p_y1), 2.0));
 								double s = chord / 2.0 * p_r1;
 								double radius = (pow(chord / 2.0, 2.0) + pow(s, 2.0)) / (2.0 * s);
 								double len = get_len(pl_last_x, pl_last_y, p_x1, p_y1);
@@ -408,7 +408,7 @@ void dxf_read (char *file) {
 							if (dxf_options[42][0] == 0) {
 								add_line(TYPE_LINE, dxf_options[8], pl_last_x, pl_last_y, p_x1, p_y1, 0.0, 0.0, 0.0);
 							} else {
-								double chord = sqrt(pow(abs(pl_last_x - p_x1), 2.0) + pow(abs(pl_last_y - p_y1), 2.0));
+								double chord = sqrt(pow(fabs(pl_last_x - p_x1), 2.0) + pow(fabs(pl_last_y - p_y1), 2.0));
 								double s = chord / 2.0 * p_r1;
 								double radius = (pow(chord / 2.0, 2.0) + pow(s, 2.0)) / (2.0 * s);
 								double len = get_len(pl_last_x, pl_last_y, p_x1, p_y1);
