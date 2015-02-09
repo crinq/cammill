@@ -83,18 +83,15 @@ _POCKETLINE myPOCKETLINES[10000];
 int plnum = 0;
 
 
-void mill_pocketline (int object_num, double *next_x, double *next_y) {
+void mill_pocketline (int object_num, double depth, double *next_x, double *next_y) {
 	double last_x = 0.0;
 	double last_y = 0.0;
 	int n = 0;
 	int n2 = 0;
 	double dist = 0.0;
-
 	double x_prio = 5.0;
-
 	last_x = *next_x;
 	last_y = *next_y;
-
 	for (n = 0; n < plnum; n++) {
 		double shortest_dist = 999999.0;
 		int shortest_line = -1;
@@ -120,12 +117,12 @@ void mill_pocketline (int object_num, double *next_x, double *next_y) {
 			myPOCKETLINES[shortest_line].visited = 1;
 			if (dist > PARAMETER[P_TOOL_DIAMETER].vdouble) {
 				mill_z(0, PARAMETER[P_CUT_SAVE].vdouble);
-				mill_xy(0, myPOCKETLINES[shortest_line].x1, myPOCKETLINES[shortest_line].y1, myOBJECTS[object_num].depth, PARAMETER[P_M_FEEDRATE].vint, object_num, "");
-				mill_z(1, myOBJECTS[object_num].depth);
+				mill_xy(0, myPOCKETLINES[shortest_line].x1, myPOCKETLINES[shortest_line].y1, depth, PARAMETER[P_M_FEEDRATE].vint, object_num, "");
+				mill_z(1, depth);
 			} else {
-				mill_xy(1, myPOCKETLINES[shortest_line].x1, myPOCKETLINES[shortest_line].y1, myOBJECTS[object_num].depth, PARAMETER[P_M_FEEDRATE].vint, object_num, "");
+				mill_xy(1, myPOCKETLINES[shortest_line].x1, myPOCKETLINES[shortest_line].y1, depth, PARAMETER[P_M_FEEDRATE].vint, object_num, "");
 			}
-			mill_xy(1, myPOCKETLINES[shortest_line].x2, myPOCKETLINES[shortest_line].y2, myOBJECTS[object_num].depth, PARAMETER[P_M_FEEDRATE].vint, object_num, "");
+			mill_xy(1, myPOCKETLINES[shortest_line].x2, myPOCKETLINES[shortest_line].y2, depth, PARAMETER[P_M_FEEDRATE].vint, object_num, "");
 			last_x = myPOCKETLINES[shortest_line].x2;
 			last_y = myPOCKETLINES[shortest_line].y2;
 		} else if (shortest_side == 1) {
@@ -133,12 +130,12 @@ void mill_pocketline (int object_num, double *next_x, double *next_y) {
 			myPOCKETLINES[shortest_line].visited = 1;
 			if (dist > PARAMETER[P_TOOL_DIAMETER].vdouble) {
 				mill_z(0, PARAMETER[P_CUT_SAVE].vdouble);
-				mill_xy(0, myPOCKETLINES[shortest_line].x2, myPOCKETLINES[shortest_line].y2, myOBJECTS[object_num].depth, PARAMETER[P_M_FEEDRATE].vint, object_num, "");
-				mill_z(1, myOBJECTS[object_num].depth);
+				mill_xy(0, myPOCKETLINES[shortest_line].x2, myPOCKETLINES[shortest_line].y2, depth, PARAMETER[P_M_FEEDRATE].vint, object_num, "");
+				mill_z(1, depth);
 			} else {
-				mill_xy(1, myPOCKETLINES[shortest_line].x2, myPOCKETLINES[shortest_line].y2, myOBJECTS[object_num].depth, PARAMETER[P_M_FEEDRATE].vint, object_num, "");
+				mill_xy(1, myPOCKETLINES[shortest_line].x2, myPOCKETLINES[shortest_line].y2, depth, PARAMETER[P_M_FEEDRATE].vint, object_num, "");
 			}
-			mill_xy(1, myPOCKETLINES[shortest_line].x1, myPOCKETLINES[shortest_line].y1, myOBJECTS[object_num].depth, PARAMETER[P_M_FEEDRATE].vint, object_num, "");
+			mill_xy(1, myPOCKETLINES[shortest_line].x1, myPOCKETLINES[shortest_line].y1, depth, PARAMETER[P_M_FEEDRATE].vint, object_num, "");
 			last_x = myPOCKETLINES[shortest_line].x1;
 			last_y = myPOCKETLINES[shortest_line].y1;
 		} else {
@@ -150,7 +147,23 @@ void mill_pocketline (int object_num, double *next_x, double *next_y) {
 }
 
 void mill_pocket (int object_num, double *next_x, double *next_y) {
+	char cline[1024];
 	int n = 0;
+
+#ifdef USE_POSTCAM
+	postcam_comment("--------------------------------------------------");
+	sprintf(cline, "Object: #%i", object_num);
+	postcam_var_push_string("partName", cline);
+	postcam_comment(cline);
+	sprintf(cline, "Layer: %s", myOBJECTS[object_num].layer);
+	postcam_comment(cline);
+	sprintf(cline, "Pocket-Operation");
+	postcam_comment(cline);
+	postcam_comment("--------------------------------------------------");
+	postcam_call_function("OnNewPart");
+#endif
+
+
 #pragma omp parallel
 {
 	for (n = 0; n < 10000; n++) {
@@ -228,7 +241,6 @@ void mill_pocket (int object_num, double *next_x, double *next_y) {
 								last_x = pmx;
 								last_y = pmy;
 							}
-	
 						} else if (in_flag == 1) {
 							in_flag = 0;
 							if (last_x != 0.0 && last_y != 0.0) {
@@ -256,7 +268,25 @@ void mill_pocket (int object_num, double *next_x, double *next_y) {
 				}
 			}
 }
-			mill_pocketline(object_num, next_x, next_y);
+			double first_x = *next_x;
+			double first_y = *next_y;
+			double mill_depth_real = myOBJECTS[object_num].depth;
+			double depth = 0.0;
+			double new_depth = 0.0;
+			for (depth = PARAMETER[P_M_Z_STEP].vdouble; depth > mill_depth_real + PARAMETER[P_M_Z_STEP].vdouble; depth += PARAMETER[P_M_Z_STEP].vdouble) {
+				if (depth < mill_depth_real) {
+					new_depth = mill_depth_real;
+				} else {
+					new_depth = depth;
+				}
+				*next_x = first_x;
+				*next_y = first_y;
+				mill_pocketline(object_num, new_depth, next_x, next_y);
+				for (n = 0; n < 10000; n++) {
+					myPOCKETLINES[n].visited = 0;
+				}
+
+			}
 		}
 	}
 }
