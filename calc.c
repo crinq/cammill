@@ -213,7 +213,7 @@ void object2poly (int object_num, double depth, double depth2, int invert) {
 		float y = myLINES[lnum].cy;
 		float last_x = x + r;
 		float last_y = y;
-		for (an = 0.0; an < 360.0; an += 9.0) {
+		for (an = 0.0; an < 360.0; an += 5.0) {
 			float angle1 = toRad(an);
 			float x1 = r * cos(angle1);
 			float y1 = r * sin(angle1);
@@ -271,7 +271,7 @@ void object2poly (int object_num, double depth, double depth2, int invert) {
 					float last_x = x + r;
 					float last_y = y;
 					if (myOBJECTS[object_num].climb == 1) {
-						for (an = 0.0; an < 360.0; an += 9.0) {
+						for (an = 0.0; an < 360.0; an += 5.0) {
 							float angle1 = toRad(an);
 							float x1 = r * cos(angle1);
 							float y1 = r * sin(angle1);
@@ -1064,7 +1064,7 @@ void mill_objects (void) {
 		}
 	}
 
-	/* 'shortest' path / first inside than outside objects */ 
+	/* 'shortest' path / first inside than outside objects */
 	double last_x = 0.0;
 	double last_y = 0.0;
 	double next_x = 0.0;
@@ -1848,7 +1848,7 @@ void mill_circle (int gcmd, double x, double y, double r, double depth, int feed
 	float an = 0.0;
 	float last_x = x + r;
 	float last_y = y;
-	for (an = 0.0; an <= 360.0; an += 18.0) {
+	for (an = 0.0; an <= 360.0; an += 5.0) {
 		float angle1 = toRad(an);
 		float x1 = r * cos(angle1);
 		float y1 = r * sin(angle1);
@@ -1970,7 +1970,7 @@ void object_draw (FILE *fd_out, int object_num) {
 		append_gcode(cline);
 		if (lasermode == 1) {
 			sprintf(cline, "(Laser-Mode: On)\n");
-		} else { 
+		} else {
 			sprintf(cline, "(Depth: %f)\n", mill_depth_real);
 		}
 		append_gcode(cline);
@@ -1990,7 +1990,7 @@ void object_draw (FILE *fd_out, int object_num) {
 			mill_move_in(myLINES[lnum].cx - r, myLINES[lnum].cy, 0.0, lasermode, object_num);
 			mill_circle(2, myLINES[lnum].cx, myLINES[lnum].cy, r, 0.0, PARAMETER[P_M_FEEDRATE].vint, myOBJECTS[object_num].inside, object_num, "");
 		}
-		for (an = 0.0; an <= 360.0; an += 9.0) {
+		for (an = 0.0; an <= 360.0; an += 5.0) {
 			double angle1 = toRad(an);
 			double x1 = r * cos(angle1);
 			double y1 = r * sin(angle1);
@@ -2466,7 +2466,7 @@ void object_draw_offset (FILE *fd_out, int object_num, double *next_x, double *n
 		sprintf(cline, "Tangencial-Mode: On");
 	} else if (lasermode == 1) {
 		sprintf(cline, "Laser-Mode: On");
-	} else { 
+	} else {
 		sprintf(cline, "Depth: %f", mill_depth_real);
 	}
 	postcam_comment(cline);
@@ -2853,7 +2853,7 @@ void init_objects (void) {
 	gtk_list_store_clear(ListStore[P_O_SELECT]);
 	for (object_num = 0; object_num < line_last; object_num++) {
 		if (myOBJECTS[object_num].line[0] != 0) {
-			char tmp_str[128];	
+			char tmp_str[128];
 			sprintf(tmp_str, "Object: #%i (%s)", object_num, myOBJECTS[object_num].layer);
 			gtk_list_store_insert_with_values(ListStore[P_O_SELECT], NULL, object_num, 0, NULL, 1, tmp_str, -1);
 		}
@@ -2869,7 +2869,7 @@ char *csv_getfield (char *line, int num, char *val) {
 	int field = 0;
 	char prevc = ';';
 	strcpy(val, line);
-	for (p = line; *p != '\n'; p++) {  
+	for (p = line; *p != '\n'; p++) {
 		if (*p == prevc) {
 			val[n] = 0;
 			if (field == num) {
@@ -3213,8 +3213,3 @@ void slice_3d (char *file, float z) {
 }
 
 #endif
-
-
-
-
-

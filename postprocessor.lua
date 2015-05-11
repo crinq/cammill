@@ -9,12 +9,14 @@ ModalTable = {}
 function trim(s)
 	return s:find'^%s*$' and '' or s:match'^%s*(.*%S)'
 end
- 
+
 post = {}
 post.Text = function (...)
-	for i,v in ipairs(arg) do
-		out = string.format("%s", v)
-		append_output(out)
+	if arg then
+		for i,v in ipairs(arg) do
+			out = string.format("%s", v)
+			append_output(out)
+		end
 	end
 end
 
@@ -76,12 +78,12 @@ end
 
 post.ModalNumber = function (str, val, nformat)
 	mstr = trim(str)
-	if (ModalTable[mstr] == val) then
-	else
+	--if (ModalTable[mstr] == val) then
+	--else
 		out = string.format("%s", str)
 		append_output(out)
 		post.Number(val, nformat)
-	end
+	--end
 	ModalTable[mstr] = val
 end
 
@@ -133,10 +135,3 @@ function reset_modal ()
 	ModalTable = nil
 	ModalTable = {}
 end
-
-
-
-
-
-
-

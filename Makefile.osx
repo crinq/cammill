@@ -11,7 +11,9 @@
 #export PKG_CONFIG_PATH="${PKG_CONFIG_PATH}:/opt/X11/lib/pkgconfig"
 
 INCLUDES = -I./
-LIBS = -lGL -lGLU -lX11 -lm -lpthread -lstdc++ -lXext -ldl -lXi -lxcb -lXau -lXdmcp -lc `pkg-config gtk+-2.0 --libs` `pkg-config gtk+-2.0 --cflags` `pkg-config gtkglext-x11-1.0 --libs` `pkg-config gtkglext-x11-1.0 --cflags`
+INCLUDES += -I/usr/local/include/gtksourceview-2.0/
+
+LIBS = -framework OpenGL -framework GLUT -L/opt/X11/lib -lm -lpthread -lstdc++ -lXext -ldl -lXi -lxcb -lXau -lXdmcp -lc `pkg-config gtk+-2.0 --libs` `pkg-config gtk+-2.0 --cflags` `pkg-config gtkglext-x11-1.0 --libs` `pkg-config gtkglext-x11-1.0 --cflags`
 LIBS += `pkg-config gtksourceview-2.0 --libs` `pkg-config gtksourceview-2.0 --cflags`
 LIBS += `pkg-config lua --libs` `pkg-config lua --cflags`
 
@@ -26,7 +28,3 @@ cammill: main.c pocket.c calc.c hersheyfont.c postprocessor.c setup.c dxf.c dxf.
 
 clean:
 	rm -rf cammill
-
-
-
-

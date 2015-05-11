@@ -310,9 +310,9 @@ void postcam_init_lua (char *plugin) {
 	luaL_openlibs(L);
 
 	luaopen_mathx(L);
-	lua_register(L, "output_info", set_output_info);  
-	lua_register(L, "append_output", append_output);  
-	lua_register(L, "set_extension", set_extension);  
+	lua_register(L, "output_info", set_output_info);
+	lua_register(L, "append_output", append_output);
+	lua_register(L, "set_extension", set_extension);
 	postcam_var_push_double("endX", 0.0);
 	postcam_var_push_double("endY", 0.0);
 	postcam_var_push_double("endZ", 0.0);
@@ -377,4 +377,3 @@ void postcam_init_lua (char *plugin) {
 void postcam_exit_lua (void) {
 	lua_close(L);
 }
-

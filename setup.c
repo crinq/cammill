@@ -39,14 +39,14 @@ PARA PARAMETER[] = {
 	{"DXF-File",	"View",		"-d",	T_FILE,		0,	0.0,	0.0,	"",	0.0,	0.0,	0.0,		"", 0, 0, "dxf-filename", 0, 0, 0},
 	{"Select",	"Tool",		"-tn",	T_SELECT,	0,	0.0,	0.0,	"",	0.0,	1.0,	100.0,		"#", 0, 0, "selected tool from tooltable", 0, 0, 0},
 	{"Number",	"Tool",		"-tn",	T_INT,		1,	0.0,	0.0,	"",	1.0,	1.0,	18.0,		"#", 1, 1, "tool-number", 0, 0, 0},
-	{"Diameter",	"Tool",		"-td",	T_DOUBLE,	0,	3.0,	3.0,	"",	0.01,	0.01,	18.0,		"mm", 1, 1, "tool-diameter", 0, 0, 0},
-	{"CalcSpeed",	"Tool",		"-cs",	T_INT,		10000,	0.0,	0.0,	"",	1.0,	10.0,	100000.0,	"rpm", 1, 0, "calculated spindle-speed", 1, 0, 0},
-	{"Speed",	"Tool",		"-ts",	T_INT,		10000,	0.0,	0.0,	"",	1.0,	10.0,	100000.0,	"rpm", 1, 1, "real spindle-speed", 0, 0, 0},
-	{"Flutes",	"Tool",		"-tw",	T_INT,		2,	0.0,	0.0,	"",	1.0,	1.0,	10.0,		"#", 1, 0, "flutes of the tool, to calculate max toolspeed and feedrate", 0, 0, 0},
+	{"Diameter",	"Tool",		"-td",	T_DOUBLE,	0,	10.0,	10.0,	"",	0.01,	0.01,	1000.0,		"mm", 1, 1, "tool-diameter", 0, 0, 0},
+	{"CalcSpeed",	"Tool",		"-cs",	T_INT,		1000,	0.0,	0.0,	"",	1.0,	10.0,	100000.0,	"rpm", 1, 0, "calculated spindle-speed", 1, 0, 0},
+	{"Speed",	"Tool",		"-ts",	T_INT,		1000,	0.0,	0.0,	"",	1.0,	10.0,	100000.0,	"rpm", 1, 1, "real spindle-speed", 0, 0, 0},
+	{"Flutes",	"Tool",		"-tw",	T_INT,		2,	0.0,	0.0,	"",	1.0,	1.0,	100.0,		"#", 1, 0, "flutes of the tool, to calculate max toolspeed and feedrate", 0, 0, 0},
 	{"Table",	"Tool",		"-tt",	T_FILE	,	0,	0.0,	0.0,	"",	0.0,	0.0,	0.0,		"", 0, 0, "the tooltable filename", 0, 0, 0},
-	{"MaxFeedRate",	"Milling",	"-fm",	T_INT	,	200,	0.0,	0.0,	"",	1.0,	1.0,	10000.0,	"mm/min", 1, 0, "calculated maximum feedrate", 1, 0, 0},
-	{"FeedRate",	"Milling",	"-fr",	T_INT	,	200,	0.0,	0.0,	"",	1.0,	1.0,	10000.0,	"mm/min", 1, 1, "real feedrate", 0, 0, 0},
-	{"PlungeRate",	"Milling",	"-pr",	T_INT	,	100,	0.0,	0.0,	"",	1.0,	1.0,	10000.0,	"mm/min", 1, 1, "plunge feedrate", 0, 0, 0},
+	{"MaxFeedRate",	"Milling",	"-fm",	T_INT	,	200,	0.0,	0.0,	"",	1.0,	1.0,	60000.0,	"mm/min", 1, 0, "calculated maximum feedrate", 1, 0, 0},
+	{"FeedRate",	"Milling",	"-fr",	T_INT	,	200,	0.0,	0.0,	"",	1.0,	1.0,	60000.0,	"mm/min", 1, 1, "real feedrate", 0, 0, 0},
+	{"PlungeRate",	"Milling",	"-pr",	T_INT	,	100,	0.0,	0.0,	"",	1.0,	1.0,	60000.0,	"mm/min", 1, 1, "plunge feedrate", 0, 0, 0},
 	{"Depth",	"Milling",	"-md",	T_DOUBLE,	0,	-4.0,	-4.0,	"",	-40.0,	0.01,	-0.1,		"mm", 1, 1, "end depth", 0, 0, 0},
 	{"Z-Step",	"Milling",	"-msp",	T_DOUBLE,	0,	-4.0,	-4.0,	"",	-40.0,	0.01,	-0.1,		"mm", 1, 1, "depth per step", 0, 0, 0},
 	{"Save-Move",	"Milling",	"-msm",	T_DOUBLE,	0,	4.0,	4.0,	"",	1.0,	1.0,	80.0,		"mm", 1, 1, "save move z-position", 0, 0, 0},
@@ -407,4 +407,3 @@ int SetupArgCheck (char *arg, char *arg2) {
 	}
 	return 0;
 }
-
