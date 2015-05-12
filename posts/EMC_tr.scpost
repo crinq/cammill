@@ -59,6 +59,17 @@ function minus(veca, vecb)
 	return {veca[1] - vecb[1], veca[2] - vecb[2], veca[3] - vecb[3]}
 end
 
+function dot(veca, vecb)
+	return veca[1] * vecb[1] + veca[2] * vecb[2] + veca[3] * vecb[3]
+end
+
+function ang(veca, vecb)
+	if length(veca) == 0 or length(vecb) == 0 then
+		return 0
+	end
+	return math.acos(dot(veca, vecb) / length(veca) / length(vecb))
+end
+
 function do_move(vec, feed)
 	post.ModalText("G01")
 	post.ModalNumber(" "..axisX, vec[1])
@@ -92,12 +103,14 @@ function doline(start_vec, end_vec, feed, D, d, clean)
 	local left = cross(Zvec, move)
 	local right = cross(move, Zvec)
 
-	local step = 0.1--0.05 -- step
+	local step = 0.05 -- step
 	step = d * step
 
 	local arc_feed = feed -- cut feed
 	local move_feed = feed -- advance feed
 	local free_feed = feed * 2 -- free move feed
+
+	local real_d = d
 
 	if length(move) == 0 then
 		do return end
@@ -129,12 +142,14 @@ function doline(start_vec, end_vec, feed, D, d, clean)
 
 
 	-- start move
+	post.ModalText("(doline: start move)\n")
 	do_move(pos, move_feed)	-- move to center
-	abs_arc(plus(pos, right), scale(right, 0.5), 0, arc_feed) -- clear start circle
-	abs_arc(plus(pos, left), left, 0, arc_feed)
-	abs_arc(plus(pos, right), right, 0, arc_feed)
+	abs_arc(plus(pos, right), scale(right, 0.5), 0, arc_feed / 2) -- clear start circle
+	abs_arc(plus(pos, left), left, 0, arc_feed / 2)
+	abs_arc(plus(pos, right), right, 0, arc_feed / 2)
 
 	-- move and clear
+	post.ModalText("(doline: cut)\n")
 	while length(minus(end_vec, pos)) > length(vec) do
 		pos = plus(pos, vec)
 		do_move(plus(pos, right), move_feed) -- advance
@@ -143,24 +158,147 @@ function doline(start_vec, end_vec, feed, D, d, clean)
 	end
 
 	-- end move
+	post.ModalText("(doline: end move)\n")
 	pos = end_vec
 	do_move(plus(pos, right), move_feed) -- advance
 	abs_arc(plus(pos, left), left, 0, arc_feed) -- cut
-	abs_arc(plus(pos, right), right, 0, free_feed) -- go back
-	do_move(pos, free_feed)	-- move to center
 
 	if clean > 0 then
-		abs_arc(plus(end_vec, right), scale(right, 0.5), 0, arc_feed) -- lead in
-		abs_arc(plus(end_vec, left), left, 0, arc_feed) -- end arc
+		post.ModalText("(doline: cleanup)\n")
+		left = scale(left, (D - real_d) / 2 / length(left))
+		right = scale(right, (D - real_d) / 2 / length(right))
+
 		do_move(plus(start_vec, left), arc_feed) -- left wall
 		abs_arc(plus(start_vec, right), right, 0, arc_feed) -- start arc
 		do_move(plus(end_vec, right), arc_feed) -- right wall
-		do_move(pos, free_feed)	-- move to center
+		abs_arc(plus(end_vec, left), left, 0, arc_feed) -- end arc
+	else
+		abs_arc(plus(end_vec, right), right, 0, free_feed) -- go back
 	end
+	do_move(end_vec, free_feed)	-- move to center
+	post.ModalText("(doline: end)\n")
 end
 
-function doarc(start_vec, end_vec, mid_vec, cw, feed, D, d, clean)
+function doarc(start_vec, end_vec, mid_vec, arc_ang, feed, D, d, clean)
+	local r = length(minus(mid_vec, end_vec))
+	local Xvec = {1, 0, 0}
+	local Yvec = {0, 1, 0}
+	local Zvec = {0, 0, 1}
 
+	local start_ang = ang(Xvec, minus(start_vec, mid_vec))
+	local end_ang = ang(Xvec, minus(end_vec, mid_vec))
+
+	if D == d then
+		abs_arc(end_vec, minus(mid_vec, end_vec), cw, feed)
+		do return end
+	end
+
+	if r == 0 then
+		do_move(end_vec, feed)
+		do return end
+	end
+
+	local step = 0.1--0.05 -- step
+	step = d * step
+	step = math.abs(math.asin(step / r))
+
+	local real_d = d
+
+	if clean > 0 then
+		d = 1.01 * d
+	end
+
+	arc_ang = -arc_ang
+
+	if arc_ang < 0 then
+		step = -step
+	end
+
+	print("aa: ", arc_ang, " r: ", r, " st: ", step, " s: ", start_ang, " e: ", end_ang, " s+aa: ", start_ang + arc_ang)
+
+	end_ang = start_ang + arc_ang
+
+
+	local arc_feed = feed -- cut feed
+	local move_feed = feed -- advance feed
+	local free_feed = feed * 2 -- free move feed
+
+	local pos_ang = start_ang
+	local pos = start_vec
+	local tmp = {math.cos(pos_ang + step) * r, math.sin(pos_ang + step) * r, 0}
+	local next = plus(mid_vec, tmp)
+	local left = cross(Zvec, minus(next, pos))
+	local right = cross(minus(next, pos), Zvec)
+	left = scale(left, (D - d) / 2 / length(left))
+	right = scale(right, (D - d) / 2 / length(right))
+
+	-- start move
+	post.ModalText("(doarc: start move)\n")
+	do_move(pos, move_feed)	-- move to center
+	do_move(plus(pos, {0, 0, 20}), move_feed)
+	do_move(pos, move_feed)
+	--do_move(plus(pos, right), move_feed)
+	--abs_arc(plus(pos, right), scale(right, 0.5), 0, arc_feed / 2) -- clear start circle
+	--abs_arc(plus(pos, left), left, 0, arc_feed / 2)
+	--abs_arc(plus(pos, right), right, 0, arc_feed / 2)
+	post.ModalText("(doarc: cut)\n")
+	while math.abs(end_ang - pos_ang) > math.abs(step) do
+		pos_ang = pos_ang + step
+		tmp = {math.cos(pos_ang) * r, math.sin(pos_ang) * r, 0}
+		next = plus(mid_vec, tmp)
+		left = cross(Zvec, minus(next, pos))
+		right = cross(minus(next, pos), Zvec)
+		left = scale(left, (D - d) / 2 / length(left))
+		right = scale(right, (D - d) / 2 / length(right))
+
+		pos = next
+
+		--abs_arc(plus(pos, right), minus(mid_vec, plus(pos, right)), cw, move_feed) -- advance
+		do_move(pos, move_feed)
+		do_move(plus(pos, {0, 0, 10}), move_feed)
+		do_move(pos, move_feed)
+
+		--do_move(plus(pos, left), move_feed)
+		--do_move(plus(pos, right), move_feed)
+		--abs_arc(plus(pos, left), left, 0, arc_feed) -- cut
+		--abs_arc(plus(pos, right), right, 0, free_feed) -- go back
+	end
+
+	-- end move
+	post.ModalText("(doarc: end move)\n")
+	pos = end_vec
+	pos_ang = pos_ang + step
+	tmp = {math.cos(pos_ang) * r, math.sin(pos_ang) * r, 0}
+	next = plus(mid_vec, tmp)
+	left = cross(Zvec, minus(next, pos))
+	right = cross(minus(next, pos), Zvec)
+	left = scale(left, (D - d) / 2 / length(left))
+	right = scale(right, (D - d) / 2 / length(right))
+
+	--abs_arc(plus(pos, right), minus(mid_vec, plus(pos, right)), cw, move_feed) -- advance
+	--do_move(plus(pos, right), move_feed)
+	--abs_arc(plus(pos, left), left, 0, arc_feed) -- cut
+
+	-- if clean > 0 then
+	-- 	left = minus(mid_vec, start_pos)
+	-- 	right = left
+	-- 	left = scale(left, (D - real_d) / 2 / length(left))
+	-- 	right = scale(right, -(D - real_d) / 2 / length(right))
+	-- 	abs_arc(plus(start_pos, left), minus(mid_vec, plus(start_pos, left)), 0, arc_feed) -- left wall
+	-- 	abs_arc(plus(start_vec, right), right, 0, arc_feed) -- start arc
+	-- 	left = minus(mid_vec, end_pos)
+	-- 	right = left
+	-- 	left = scale(left, (D - real_d) / 2 / length(left))
+	-- 	right = scale(right, -(D - real_d) / 2 / length(right))
+	-- 	abs_arc(plus(end_pos, right), minus(mid_vec, plus(end_pos, right)), 0, arc_feed) -- right wall
+	-- 	abs_arc(plus(end_vec, left), left, 0, arc_feed) -- end arc
+	-- else
+	 	--abs_arc(plus(end_vec, right), right, 0, free_feed) -- go back
+	-- end
+	do_move(end_vec, move_feed)
+	do_move(plus(end_vec, {0, 0, 30}), move_feed)
+	do_move(end_vec, free_feed)	-- move to center
+	post.ModalText("(doarc: end)\n")
 end
 
 function OnMove()
@@ -170,27 +308,27 @@ function OnMove()
 	local feed = feedRate -- cut feed
 
 	local D = 38 -- mill dia
-	local d = 30 -- cutter dia
+	local d = 20 -- cutter dia
 	local clean = 0 -- clean edges
 
+	print("line: (", currentX, "/", currentY, "/", currentZ, ") -> (", endX, "/", endY, "/", endZ, ")")
 	doline(start_vec, end_vec, feed, D, d, clean)
 end
 
 function OnArc()
-	if(arcAngle <0) then
-		post.ModalText("G03")
-	else
-		post.ModalText("G02")
-	end
-	post.ModalNumber(" "..axisX, endX)
-	post.ModalNumber(" "..axisY, endY)
-	post.ModalNumber(" "..axisZ, endZ)
-	post.ModalText(" I")
-	post.Number((arcCentreX - currentX))
-	post.ModalText(" J")
-	post.Number((arcCentreY - currentY))
-	post.ModalNumber(" F", feedRate, "0")
-	post.Eol()
+	local start_vec = {currentX, currentY, currentZ}
+	local end_vec = {endX, endY, endZ}
+	local mid_vec = {arcCentreX, arcCentreY, endZ}
+
+	local feed = feedRate -- cut feed
+
+	local D = 38 -- mill dia
+	local d = 20 -- cutter dia
+	local clean = 0 -- clean edges
+
+	--doarc(start_vec, end_vec, mid_vec, arcAngle, feed, D, d, clean)
+	print("arc: (", currentX, "/", currentY, "/", currentZ, ") -> (", endX, "/", endY, "/", endZ, ")")
+	doline(start_vec, end_vec, feed, D, d, clean)
 end
 
 function OnSpindleCW()

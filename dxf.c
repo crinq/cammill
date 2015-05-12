@@ -320,7 +320,19 @@ void dxf_read (char *file) {
 						double last_x = (p_x1 + x2);
 						double last_y = (p_y1 + y2);
 						double an = 0;
-						double p_rast = (p_a2 - p_a1) / 9.0;
+						double p_rast = (p_a2 - p_a1) / 10.0;
+
+						// double startx = p_x1 + r * cos(toRad(p_a1));
+						// double starty = p_y1 + r * sin(toRad(p_a1));
+						// double endx = p_x1 + r * cos(toRad(p_a2));
+						// double endy = p_y1 + r * sin(toRad(p_a2));
+
+
+						// if (strcmp(last_0, "CIRCLE") == 0) {
+						// 	add_line(TYPE_CIRCLE, dxf_options[8], startx, starty, endx, endy, r, p_x1, p_y1);
+						// } else {
+						// 	add_line(TYPE_ARC, dxf_options[8], startx, starty, endx, endy, r, p_x1, p_y1);
+						// }
 						for (an = p_a1 + p_rast; an <= p_a2 - (p_rast / 2.0); an += p_rast) {
 							double angle1 = toRad(an);
 							double x1 = r * cos(angle1);
@@ -434,4 +446,3 @@ void dxf_read (char *file) {
 //exit(0);
 	fclose(fp);
 }
-
