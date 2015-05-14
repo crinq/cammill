@@ -6,6 +6,8 @@ os.setlocale("C")
 
 ModalTable = {}
 
+scale = 1
+
 function trim(s)
 	return s:find'^%s*$' and '' or s:match'^%s*(.*%S)'
 end
