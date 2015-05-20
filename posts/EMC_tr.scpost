@@ -308,8 +308,8 @@ function OnMove()
 
   local feed = feedRate * scale -- cut feed
 
-  local D = (toolDia or 38) * scale -- mill dia
-  local d = (real_toolDia or 29.8) * scale -- cutter dia
+  local D = (toolDia or 0) * scale -- mill dia
+  local d = (real_toolDia or 0) * scale -- cutter dia
   local step = advance_step or 0.05
   local clean = clean_move or 0 -- clean edges
 
@@ -323,8 +323,8 @@ function OnArc()
 
   local feed = feedRate * scale -- cut feed
 
-  local D = (toolDia or 38) * scale -- mill dia
-  local d = (real_toolDia or 29.8) * scale -- cutter dia
+  local D = (toolDia or 0) * scale -- mill dia
+  local d = (real_toolDia or 0) * scale -- cutter dia
   local step = advance_step or 0.05
   local clean = clean_move or 0 -- clean edges
 
