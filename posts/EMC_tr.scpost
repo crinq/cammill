@@ -1,361 +1,430 @@
-post.ForceExtension("ngc")
-
 function OnAbout(event)
-	ctrl = event:GetTextCtrl()
-	ctrl:AppendText("EMC post processor\n")
-	ctrl:AppendText("(LinuxCNC)\n")
+   ctrl = event:GetTextCtrl()
+   ctrl:AppendText("EMC post processor with trochodial milling\n")
+   ctrl:AppendText("\n")
+   ctrl:AppendText("Modal G-codes and coordinates\n")
+   ctrl:AppendText("Comments enclosed with ( and )\n")
+   ctrl:AppendText("Incremental IJ\n")
+   ctrl:AppendText("uses G43 tool length offsets\n")
 end
 
-function OnInit()
-	axisX = "X"
-	axisY = "Y"
-	axisZ = "Z"
-	post.ModalText("G21 (Metric)\n")
-	post.ModalText("G40 (No Offsets)\n")
-	post.ModalText("G90 (Absolute-Mode)\n")
-	post.ModalText("G91.1 (Arc-Inc-Mode)\n")
 
-	if velocityMode == 1 then
-		post.ModalText("G64 P")
-		post.Number(blendingTolerance)
-	else
-		post.ModalText("G61")
-	end
-	post.Eol()
-	post.ModalNumber("F", feedRate, "0")
-	post.Eol()
-end
+--  revision 3/6/09
+--  Removed line numbers (they can conflict with 0-word subroutines)
 
-function OnFinish()
-	post.ModalText("M02\n")
-end
+--  revision 3/2/07
+--  Removed final safety move. This is now done in SheetCam
 
-function OnRapid()
-	post.ModalText("G00")
-	post.ModalNumber(" "..axisX, endX)
-	post.ModalNumber(" "..axisY, endY)
-	post.ModalNumber(" "..axisZ, endZ)
-	post.Eol()
-end
+--   revision 7/10/04
+--   Added new arc handling
 
+--   Created 30/3/2005
+--   based on Mach2.post
 
 function length(vec)
-	return math.sqrt(vec[1] * vec[1] + vec[2] * vec[2] + vec[3] * vec[3])
+  return math.sqrt(vec[1] * vec[1] + vec[2] * vec[2] + vec[3] * vec[3])
 end
 
-function scale(vec, s)
-	return {vec[1] * s, vec[2] * s, vec[3] * s}
+function scale_vec(vec, s)
+  return {vec[1] * s, vec[2] * s, vec[3] * s}
 end
 
 function cross(veca, vecb)
-	return {veca[2] * vecb[3] - veca[3] * vecb[2], veca[3] * vecb[1] - veca[1] * vecb[3], veca[1] * vecb[2] - veca[2] * vecb[1]}
+  return {veca[2] * vecb[3] - veca[3] * vecb[2], veca[3] * vecb[1] - veca[1] * vecb[3], veca[1] * vecb[2] - veca[2] * vecb[1]}
 end
 
 function plus(veca, vecb)
-	return {veca[1] + vecb[1], veca[2] + vecb[2], veca[3] + vecb[3]}
+  return {veca[1] + vecb[1], veca[2] + vecb[2], veca[3] + vecb[3]}
 end
 
 function minus(veca, vecb)
-	return {veca[1] - vecb[1], veca[2] - vecb[2], veca[3] - vecb[3]}
+  return {veca[1] - vecb[1], veca[2] - vecb[2], veca[3] - vecb[3]}
 end
 
 function dot(veca, vecb)
-	return veca[1] * vecb[1] + veca[2] * vecb[2] + veca[3] * vecb[3]
+  return veca[1] * vecb[1] + veca[2] * vecb[2] + veca[3] * vecb[3]
 end
 
 function ang(veca, vecb)
-	if length(veca) == 0 or length(vecb) == 0 then
-		return 0
-	end
-	return math.acos(dot(veca, vecb) / length(veca) / length(vecb))
+  if length(veca) == 0 or length(vecb) == 0 then
+    return 0
+  end
+  return math.acos(dot(veca, vecb) / length(veca) / length(vecb))
 end
 
-function do_move(vec, feed)
-	post.ModalText("G01")
-	post.ModalNumber(" "..axisX, vec[1])
-	post.ModalNumber(" "..axisY, vec[2])
-	post.ModalNumber(" "..axisZ, vec[3])
-	post.ModalNumber(" F", feed, "0")
-	post.Eol()
+function do_move(end_vec, feed)
+  post.ModalText(" G01")
+  post.ModalNumber(" X", end_vec[1], "0.0000")
+  post.ModalNumber(" Y", end_vec[2], "0.0000")
+  post.ModalNumber(" Z", end_vec[3], "0.0000")
+  post.ModalNumber (" F", feed, "0.###")
+  post.Eol()
 end
 
-function abs_arc(end_vec, mid_vec, cw, feed)
-	if cw > 0 then
-		post.ModalText("G02")
-	else
-		post.ModalText("G03")
-	end
-	post.ModalNumber(" "..axisX, end_vec[1])
-	post.ModalNumber(" "..axisY, end_vec[2])
-	post.ModalNumber(" "..axisZ, end_vec[3])
-	post.ModalText(" I")
-	post.Number(mid_vec[1])
-	post.ModalText(" J")
-	post.Number(mid_vec[2])
-	post.ModalNumber(" F", feed, "0")
-	post.Eol()
+function do_arc(end_vec, mid_vec, cw, feed)
+  if cw == 1 then
+    post.ModalText(" G02")
+  else
+    post.ModalText(" G03")
+  end
+  post.ModalNumber(" X", end_vec[1], "0.0000")
+  post.ModalNumber(" Y", end_vec[2], "0.0000")
+  post.ModalNumber(" Z", end_vec[3], "0.0000")
+  post.ModalNumber(" I", mid_vec[1], "0.0000")
+  post.ModalNumber(" J", mid_vec[2], "0.0000")
+  post.ModalNumber (" F", feed, "0.###")
+  post.Eol()
 end
 
-function doline(start_vec, end_vec, feed, D, d, clean)
-	local move = minus(end_vec, start_vec)
-	local pos = start_vec
-	local Zvec = {0, 0, 1}
-	local left = cross(Zvec, move)
-	local right = cross(move, Zvec)
+function doline(start_vec, end_vec, feed, D, d, step, clean)
+  local move = minus(end_vec, start_vec)
+  local pos = start_vec
+  local Zvec = {0, 0, 1}
+  local left = cross(Zvec, move)
+  local right = cross(move, Zvec)
 
-	local step = 0.05 -- step
-	step = d * step
+  --local step = 0.05 -- step
+  step = d * step
 
-	local arc_feed = feed -- cut feed
-	local move_feed = feed -- advance feed
-	local free_feed = feed * 2 -- free move feed
+  local arc_feed = feed -- cut feed
+  local move_feed = feed -- advance feed
+  local free_feed = feed * 2 -- free move feed
 
-	local real_d = d
+  local real_d = d
 
-	if length(move) == 0 then
-		do return end
-	end
+  if length(move) == 0 then
+    do return end
+  end
 
-	if D == d then
-		do_move(end_vec, move_feed)
-		do return end
-	end
+  if D <= d then
+    do_move(end_vec, move_feed)
+    do return end
+  end
 
-	if length(left) == 0 then -- z move
-		left = {1, 0, 0}
-		right = {-1, 0, 0}
-		step = step * 0.3
-		arc_feed = arc_feed * 0.5
-		move_feed = move_feed * 0.2
-		free_feed = arc_feed
-		clean = 0
-	end
+  if length(left) == 0 then -- z move
+    left = {1, 0, 0}
+    right = {-1, 0, 0}
+    step = step * 0.3
+    arc_feed = arc_feed * 0.5
+    move_feed = move_feed * 0.2
+    free_feed = arc_feed
+    clean = 0
+  end
 
-	if clean > 0 then
-		d = 1.01 * d
-	end
+  if clean > 0 then
+    d = 1.01 * d
+  end
 
-	left = scale(left, (D - d) / 2 / length(left))
-	right = scale(right, (D - d) / 2 / length(right))
-	local vec = scale(move, step / length(move))
+  left = scale_vec(left, (D - d) / 2 / length(left))
+  right = scale_vec(right, (D - d) / 2 / length(right))
+  local vec = scale_vec(move, step / length(move))
 
+  -- start move
+  do_move(pos, move_feed)  -- move to center
+  do_arc(plus(pos, right), scale_vec(right, 0.5), 0, arc_feed / 2) -- clear start circle
+  do_arc(plus(pos, left), left, 0, arc_feed / 2)
+  do_arc(plus(pos, right), right, 0, arc_feed / 2)
 
+  -- move and clear
+  while length(minus(end_vec, pos)) > length(vec) do
+    pos = plus(pos, vec)
+    do_move(plus(pos, right), move_feed) -- advance
+    do_arc(plus(pos, left), left, 0, arc_feed) -- cut
+    do_arc(plus(pos, right), right, 0, free_feed) -- go back
+  end
 
-	-- start move
-	post.ModalText("(doline: start move)\n")
-	do_move(pos, move_feed)	-- move to center
-	abs_arc(plus(pos, right), scale(right, 0.5), 0, arc_feed / 2) -- clear start circle
-	abs_arc(plus(pos, left), left, 0, arc_feed / 2)
-	abs_arc(plus(pos, right), right, 0, arc_feed / 2)
+  -- end move
+  pos = end_vec
+  do_move(plus(pos, right), move_feed) -- advance
+  do_arc(plus(pos, left), left, 0, arc_feed) -- cut
 
-	-- move and clear
-	post.ModalText("(doline: cut)\n")
-	while length(minus(end_vec, pos)) > length(vec) do
-		pos = plus(pos, vec)
-		do_move(plus(pos, right), move_feed) -- advance
-		abs_arc(plus(pos, left), left, 0, arc_feed) -- cut
-		abs_arc(plus(pos, right), right, 0, free_feed) -- go back
-	end
+  if clean > 0 then
+    left = scale_vec(left, (D - real_d) / 2 / length(left))
+    right = scale_vec(right, (D - real_d) / 2 / length(right))
 
-	-- end move
-	post.ModalText("(doline: end move)\n")
-	pos = end_vec
-	do_move(plus(pos, right), move_feed) -- advance
-	abs_arc(plus(pos, left), left, 0, arc_feed) -- cut
-
-	if clean > 0 then
-		post.ModalText("(doline: cleanup)\n")
-		left = scale(left, (D - real_d) / 2 / length(left))
-		right = scale(right, (D - real_d) / 2 / length(right))
-
-		do_move(plus(start_vec, left), arc_feed) -- left wall
-		abs_arc(plus(start_vec, right), right, 0, arc_feed) -- start arc
-		do_move(plus(end_vec, right), arc_feed) -- right wall
-		abs_arc(plus(end_vec, left), left, 0, arc_feed) -- end arc
-	else
-		abs_arc(plus(end_vec, right), right, 0, free_feed) -- go back
-	end
-	do_move(end_vec, free_feed)	-- move to center
-	post.ModalText("(doline: end)\n")
+    do_move(plus(start_vec, left), arc_feed) -- left wall
+    do_arc(plus(start_vec, right), right, 0, arc_feed) -- start arc
+    do_move(plus(end_vec, right), arc_feed) -- right wall
+    do_arc(plus(end_vec, left), left, 0, arc_feed) -- end arc
+  else
+    do_arc(plus(end_vec, right), right, 0, free_feed) -- go back
+  end
+  do_move(end_vec, free_feed)  -- move to center
 end
 
-function doarc(start_vec, end_vec, mid_vec, arc_ang, feed, D, d, clean)
-	local r = length(minus(mid_vec, end_vec))
-	local Xvec = {1, 0, 0}
-	local Yvec = {0, 1, 0}
-	local Zvec = {0, 0, 1}
+function doarc(start_vec, end_vec, mid_vec, arc_ang, feed, D, d, astep, clean)
+  local r = length(minus(mid_vec, end_vec))
+  local Xvec = {1, 0, 0}
+  local Yvec = {0, 1, 0}
+  local Zvec = {0, 0, 1}
 
-	local start_ang = ang(Xvec, minus(start_vec, mid_vec))
-	local end_ang = ang(Xvec, minus(end_vec, mid_vec))
+  local ccw = 1
+  local cw = 0
 
-	if D == d then
-		abs_arc(end_vec, minus(mid_vec, end_vec), cw, feed)
-		do return end
-	end
+  if arc_ang > 0 then
+    ccw = -ccw
+    cw = 1
+  end
 
-	if r == 0 then
-		do_move(end_vec, feed)
-		do return end
-	end
+  if D <= d then
+    if(arcAngle < 0) then
+      do_arc(end_vec, minus(mid_vec, start_vec), 0, feedRate)
+    else
+      do_arc(end_vec, minus(mid_vec, start_vec), 1, feedRate)
+    end
+    do return end
+  end
 
-	local step = 0.1--0.05 -- step
-	step = d * step
-	step = math.abs(math.asin(step / r))
+  if r == 0 then
+    do_move(end_vec, feed)
+    do return end
+  end
 
-	local real_d = d
+  --local astep = 0.05--0.05 -- advance step
+  astep = d * astep
 
-	if clean > 0 then
-		d = 1.01 * d
-	end
+  local vec = minus(start_vec, mid_vec)
+  local step = cross(Zvec, vec)
+  step = scale_vec(step, astep * ccw / length(step))
+  local left = cross(Zvec, step)
+  local right = cross(step, Zvec)
 
-	arc_ang = -arc_ang
+  local real_d = d
 
-	if arc_ang < 0 then
-		step = -step
-	end
+  if clean > 0 then
+    d = 1.01 * d
+  end
 
-	print("aa: ", arc_ang, " r: ", r, " st: ", step, " s: ", start_ang, " e: ", end_ang, " s+aa: ", start_ang + arc_ang)
+  local arc_feed = feed -- cut feed
+  local move_feed = feed -- advance feed
+  local free_feed = feed * 2 -- free move feed
 
-	end_ang = start_ang + arc_ang
+  left = scale_vec(left, (D - d) / 2 / length(left))
+  right = scale_vec(right, (D - d) / 2 / length(right))
+
+  local pos = start_vec
+
+  -- start move
+  do_move(pos, move_feed)  -- move to center
+  do_arc(plus(pos, right), scale_vec(right, 0.5), 0, arc_feed / 2) -- clear start circle
+  do_arc(plus(pos, left), left, 0, arc_feed / 2)
+  do_arc(plus(pos, right), right, 0, arc_feed / 2)
+
+  while length(minus(end_vec, pos)) > astep do
+    vec = plus(vec, step)
+    vec = scale_vec(vec, r / length(vec))
+
+    pos = plus(vec, mid_vec)
+
+    step = cross(Zvec, vec)
+    step = scale_vec(step, astep * ccw / length(step))
+
+    left = cross(Zvec, step)
+    right = cross(step, Zvec)
+
+    left = scale_vec(left, (D - d) / 2 / length(left))
+    right = scale_vec(right, (D - d) / 2 / length(right))
+
+    do_move(plus(pos, right), move_feed) -- advance
+    do_arc(plus(pos, left), left, 0, arc_feed) -- cut
+    do_arc(plus(pos, right), right, 0, free_feed) -- go back
+  end
+
+  -- end move
+  pos = end_vec
+
+  vec = minus(pos, mid_vec)
+  step = cross(Zvec, vec)
+  step = scale_vec(step, astep * ccw / length(step))
+
+  left = cross(Zvec, step)
+  right = cross(step, Zvec)
+
+  left = scale_vec(left, (D - d) / 2 / length(left))
+  right = scale_vec(right, (D - d) / 2 / length(right))
+
+  do_move(plus(pos, right), move_feed) -- advance
+  do_arc(plus(pos, left), left, 0, arc_feed) -- cut
+  do_arc(plus(pos, right), right, 0, free_feed) -- go back
+
+  -- if clean > 0 then
+  --   left = minus(mid_vec, start_pos)
+  --   right = left
+  --   left = scale_vec(left, (D - real_d) / 2 / length(left))
+  --   right = scale_vec(right, -(D - real_d) / 2 / length(right))
+  --   do_arc(plus(start_pos, left), minus(mid_vec, plus(start_pos, left)), 0, arc_feed) -- left wall
+  --   do_arc(plus(start_vec, right), right, 0, arc_feed) -- start arc
+  --   left = minus(mid_vec, end_pos)
+  --   right = left
+  --   left = scale_vec(left, (D - real_d) / 2 / length(left))
+  --   right = scale_vec(right, -(D - real_d) / 2 / length(right))
+  --   do_arc(plus(end_pos, right), minus(mid_vec, plus(end_pos, right)), 0, arc_feed) -- right wall
+  --   do_arc(plus(end_vec, left), left, 0, arc_feed) -- end arc
+  -- else
+     --do_arc(plus(end_vec, right), right, 0, free_feed) -- go back
+  -- end
+  --do_move(end_vec, move_feed)
+  --do_move(plus(end_vec, {0, 0, 30}), move_feed)
+  do_move(end_vec, free_feed)  -- move to center
+end
+
+function OnInit()
+   post.SetCommentChars ("()", "[]")  --make sure ( and ) characters do not appear in system text
+   post.Text (" (Filename: ", fileName, ")\n")
+   post.Text (" (Post processor: ", postName, ")\n")
+   post.Text (" (Date: ", date, ")\n")
+   if(scale == metric) then
+      post.Text (" G21 (Units: Metric)\n") --metric mode
+   else
+      post.Text (" G20 (Units: Inches)\n") --inch mode
+   end
+   post.Text (" G40 G90\n F1\n")
+   bigArcs = 1 --stitch arc segments together
+   minArcSize = 0.05 --arcs smaller than this are converted to moves
+end
+
+function OnNewLine()
+   post.Text ("N")
+   post.Number (lineNumber, "0000")
+   lineNumber = lineNumber + 10
+end
 
 
-	local arc_feed = feed -- cut feed
-	local move_feed = feed -- advance feed
-	local free_feed = feed * 2 -- free move feed
+function OnFinish()
+   post.Text (" M05 M30\n")
+end
 
-	local pos_ang = start_ang
-	local pos = start_vec
-	local tmp = {math.cos(pos_ang + step) * r, math.sin(pos_ang + step) * r, 0}
-	local next = plus(mid_vec, tmp)
-	local left = cross(Zvec, minus(next, pos))
-	local right = cross(minus(next, pos), Zvec)
-	left = scale(left, (D - d) / 2 / length(left))
-	right = scale(right, (D - d) / 2 / length(right))
-
-	-- start move
-	post.ModalText("(doarc: start move)\n")
-	do_move(pos, move_feed)	-- move to center
-	do_move(plus(pos, {0, 0, 20}), move_feed)
-	do_move(pos, move_feed)
-	--do_move(plus(pos, right), move_feed)
-	--abs_arc(plus(pos, right), scale(right, 0.5), 0, arc_feed / 2) -- clear start circle
-	--abs_arc(plus(pos, left), left, 0, arc_feed / 2)
-	--abs_arc(plus(pos, right), right, 0, arc_feed / 2)
-	post.ModalText("(doarc: cut)\n")
-	while math.abs(end_ang - pos_ang) > math.abs(step) do
-		pos_ang = pos_ang + step
-		tmp = {math.cos(pos_ang) * r, math.sin(pos_ang) * r, 0}
-		next = plus(mid_vec, tmp)
-		left = cross(Zvec, minus(next, pos))
-		right = cross(minus(next, pos), Zvec)
-		left = scale(left, (D - d) / 2 / length(left))
-		right = scale(right, (D - d) / 2 / length(right))
-
-		pos = next
-
-		--abs_arc(plus(pos, right), minus(mid_vec, plus(pos, right)), cw, move_feed) -- advance
-		do_move(pos, move_feed)
-		do_move(plus(pos, {0, 0, 10}), move_feed)
-		do_move(pos, move_feed)
-
-		--do_move(plus(pos, left), move_feed)
-		--do_move(plus(pos, right), move_feed)
-		--abs_arc(plus(pos, left), left, 0, arc_feed) -- cut
-		--abs_arc(plus(pos, right), right, 0, free_feed) -- go back
-	end
-
-	-- end move
-	post.ModalText("(doarc: end move)\n")
-	pos = end_vec
-	pos_ang = pos_ang + step
-	tmp = {math.cos(pos_ang) * r, math.sin(pos_ang) * r, 0}
-	next = plus(mid_vec, tmp)
-	left = cross(Zvec, minus(next, pos))
-	right = cross(minus(next, pos), Zvec)
-	left = scale(left, (D - d) / 2 / length(left))
-	right = scale(right, (D - d) / 2 / length(right))
-
-	--abs_arc(plus(pos, right), minus(mid_vec, plus(pos, right)), cw, move_feed) -- advance
-	--do_move(plus(pos, right), move_feed)
-	--abs_arc(plus(pos, left), left, 0, arc_feed) -- cut
-
-	-- if clean > 0 then
-	-- 	left = minus(mid_vec, start_pos)
-	-- 	right = left
-	-- 	left = scale(left, (D - real_d) / 2 / length(left))
-	-- 	right = scale(right, -(D - real_d) / 2 / length(right))
-	-- 	abs_arc(plus(start_pos, left), minus(mid_vec, plus(start_pos, left)), 0, arc_feed) -- left wall
-	-- 	abs_arc(plus(start_vec, right), right, 0, arc_feed) -- start arc
-	-- 	left = minus(mid_vec, end_pos)
-	-- 	right = left
-	-- 	left = scale(left, (D - real_d) / 2 / length(left))
-	-- 	right = scale(right, -(D - real_d) / 2 / length(right))
-	-- 	abs_arc(plus(end_pos, right), minus(mid_vec, plus(end_pos, right)), 0, arc_feed) -- right wall
-	-- 	abs_arc(plus(end_vec, left), left, 0, arc_feed) -- end arc
-	-- else
-	 	--abs_arc(plus(end_vec, right), right, 0, free_feed) -- go back
-	-- end
-	do_move(end_vec, move_feed)
-	do_move(plus(end_vec, {0, 0, 30}), move_feed)
-	do_move(end_vec, free_feed)	-- move to center
-	post.ModalText("(doarc: end)\n")
+function OnRapid()
+   post.ModalText (" G00")
+   post.ModalNumber (" X", endX * scale, "0.0000")
+   post.ModalNumber (" Y", endY * scale, "0.0000")
+   post.ModalNumber (" Z", (endZ + toolOffset) * scale, "0.0000")
+   post.Eol()
 end
 
 function OnMove()
-	local start_vec = {currentX, currentY, currentZ}
-	local end_vec = {endX, endY, endZ}
+  local start_vec = {currentX * scale, currentY * scale, (currentZ + toolOffset) * scale}
+  local end_vec = {endX * scale, endY * scale, (endZ + toolOffset) * scale}
 
-	local feed = feedRate -- cut feed
+  local feed = feedRate * scale -- cut feed
 
-	local D = 38 -- mill dia
-	local d = 20 -- cutter dia
-	local clean = 0 -- clean edges
+  local D = (toolDia or 38) * scale -- mill dia
+  local d = (real_toolDia or 29.8) * scale -- cutter dia
+  local step = advance_step or 0.05
+  local clean = clean_move or 0 -- clean edges
 
-	print("line: (", currentX, "/", currentY, "/", currentZ, ") -> (", endX, "/", endY, "/", endZ, ")")
-	doline(start_vec, end_vec, feed, D, d, clean)
+  doline(start_vec, end_vec, feed, D, d, step, clean)
 end
 
 function OnArc()
-	local start_vec = {currentX, currentY, currentZ}
-	local end_vec = {endX, endY, endZ}
-	local mid_vec = {arcCentreX, arcCentreY, endZ}
+  local start_vec = {currentX * scale, currentY * scale, (currentZ + toolOffset) * scale}
+  local end_vec = {endX * scale, endY * scale, (endZ + toolOffset) * scale}
+  local mid_vec = {arcCentreX * scale, arcCentreY * scale, (endZ + toolOffset) * scale}
 
-	local feed = feedRate -- cut feed
+  local feed = feedRate * scale -- cut feed
 
-	local D = 38 -- mill dia
-	local d = 20 -- cutter dia
-	local clean = 0 -- clean edges
+  local D = (toolDia or 38) * scale -- mill dia
+  local d = (real_toolDia or 29.8) * scale -- cutter dia
+  local step = advance_step or 0.05
+  local clean = clean_move or 0 -- clean edges
 
-	--doarc(start_vec, end_vec, mid_vec, arcAngle, feed, D, d, clean)
-	print("arc: (", currentX, "/", currentY, "/", currentZ, ") -> (", endX, "/", endY, "/", endZ, ")")
-	doline(start_vec, end_vec, feed, D, d, clean)
+  doarc(start_vec, end_vec, mid_vec, arcAngle, feed, D, d, step, clean)
 end
 
 function OnSpindleCW()
-	post.ModalText("M03")
-	post.ModalNumber(" S", spindleSpeed, "0")
-	post.Eol()
+   post.Text (" M03")
+   post.ModalNumber (" S", spindleSpeed, "0.##")
+   post.Eol()
 end
 
 function OnSpindleCCW()
-	post.ModalText("M04")
-	post.ModalNumber(" S", spindleSpeed, "0")
-	post.Eol()
+   post.Text (" M04")
+   post.ModalNumber (" S", spindleSpeed, "0.##")
+   post.Eol()
 end
 
 function OnSpindleOff()
-	post.ModalText("M05")
-	post.Eol()
+   post.Text (" M05\n")
 end
 
+
 function OnNewOperation()
+   post.Text (" (Operation: ", operationName, ")\n")
+   local pRate = plungeRate or 1
+   local fRate = feedRate or 1
+
+   if (pRate <= 0) then
+      post.Warning("WARNING: Plunge rate is zero")
+   end
+   if (fRate <= 0) then
+      post.Warning("WARNING: Feed rate is zero")
+   end
 end
 
 function OnComment()
-	post.Text(" (",commentText,")\n")
+  post.Text(" (",commentText,")\n")
 end
 
 function OnToolChange()
-	post.ModalNumber("M6 T", tool, "0")
-	post.Eol()
+   post.Text (" M6 T")
+   post.Number (tool, "0")
+   post.Text ("  (", toolName, ")\n")
+   post.Text (" G43 H")
+   post.Number (tool, "0")
+   post.Eol()
+end
+
+function OnSpindleChanged()
+   if (spindleSpeed <= 0) then
+      post.Warning("WARNING: Spindle speed is zero")
+   end
+end
+
+function OnNewPart()
+   post.Text(" (Part: ",partName,")\n");
+end
+
+
+function OnFloodOn()
+   post.Text(" M08 (Flood coolant on)\n")
+end
+
+function OnMistOn()
+   post.Text(" M07 (Mist coolant on)\n")
+end
+
+function OnCoolantOff()
+   post.Text(" M09 (Coolant off)\n")
+end
+
+function OnDrill()
+   OnRapid()
+   depth = drillStart
+   buffer = plungeSafety
+   endZ = depth + buffer
+   OnRapid()
+   if(drillRetract < buffer) then
+     buffer = drillRetract
+   end
+   while depth > drillZ do
+      OnRapid()
+      depth = depth - drillPeck
+      if (depth < drillZ) then
+         depth = drillZ
+      end
+      endZ = depth
+      OnMove()
+      if (depth > drillZ) then --retract if we need to take another bite
+         endZ = endZ + drillRetract
+         if (endZ > safeZ) then
+            endZ = safeZ
+         end
+         OnRapid()
+      end
+      endZ = depth + buffer
+   end
+   if (endZ < safeZ) then
+      endZ = safeZ
+      OnRapid()
+   end
 end
